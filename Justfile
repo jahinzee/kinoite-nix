@@ -164,33 +164,33 @@ rechunk $target_image=image_name $tag=default_tag:
     podman tag "${CHUNKED_IMAGE}" "${target_image}:${tag}"
 
 # Split the image for smaller updates (Classical)!
-# ostree-rechunk $target_image=image_name $tag=default_tag:
-#     #!/usr/bin/env bash
+ostree-rechunk $target_image=image_name $tag=default_tag:
+    #!/usr/bin/env bash
 
-#     set -xeuo pipefail
+    set -xeuo pipefail
 
-#     # TODO: This is the only blocker for rootless CI
-#     # https://github.com/coreos/rpm-ostree/issues/5346
-#     if [[ ! "${UID}" -eq "0" ]]; then
-#       echo "This needs to run as root."
-#       exit 1
-#     fi
+    # TODO: This is the only blocker for rootless CI
+    # https://github.com/coreos/rpm-ostree/issues/5346
+    if [[ ! "${UID}" -eq "0" ]]; then
+      echo "This needs to run as root."
+      exit 1
+    fi
 
-#     # You can use your own base image here to avoid pulling fedora-bootc
-#     RPM_OSTREE_CHUNKER_IMAGE="quay.io/fedora/fedora-bootc:latest"
+    # You can use your own base image here to avoid pulling fedora-bootc
+    RPM_OSTREE_CHUNKER_IMAGE="quay.io/fedora/fedora-bootc:latest"
 
-#     podman run --rm \
-#       --pull=newer \
-#       --privileged \
-#       -v "/var/lib/containers:/var/lib/containers" \
-#       --entrypoint /usr/bin/rpm-ostree \
-#       "${RPM_OSTREE_CHUNKER_IMAGE}" \
-#       compose build-chunked-oci \
-#       --max-layers 127 \
-#       --format-version=2 \
-#       --bootc \
-#       --from "localhost/${target_image}:${tag}" \
-#       --output containers-storage:"localhost/${target_image}:${tag}"
+    podman run --rm \
+      --pull=newer \
+      --privileged \
+      -v "/var/lib/containers:/var/lib/containers" \
+      --entrypoint /usr/bin/rpm-ostree \
+      "${RPM_OSTREE_CHUNKER_IMAGE}" \
+      compose build-chunked-oci \
+      --max-layers 127 \
+      --format-version=2 \
+      --bootc \
+      --from "localhost/${target_image}:${tag}" \
+      --output containers-storage:"localhost/${target_image}:${tag}"
 
 # Generate Default Tag
 [group('Utility')]
