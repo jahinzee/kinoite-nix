@@ -1,17 +1,17 @@
 set dotenv-filename := "image-template.env"
 set dotenv-load
 
-export image_name := env_var("IMAGE_NAME")
-export repo_organization := env_var("REPO_ORGANIZATION")
-export image_desc := env_var("IMAGE_DESC")
-export image_keywords := env_var("IMAGE_KEYWORDS")
-export image_logo_url := env_var("IMAGE_LOGO_URL")
-export default_tag := env_var("DEFAULT_TAG")
-export bib_image := env_var("BIB_IMAGE")
+export image_name := env("IMAGE_NAME")
+export repo_organization := env("REPO_ORGANIZATION")
+export image_desc := env("IMAGE_DESC")
+export image_keywords := env("IMAGE_KEYWORDS")
+export image_logo_url := env("IMAGE_LOGO_URL")
+export default_tag := env("DEFAULT_TAG")
+export bib_image := env("BIB_IMAGE")
 
-alias build-vm := build-qcow2
-alias rebuild-vm := rebuild-qcow2
-alias run-vm := run-vm-qcow2
+# alias build-vm := build-qcow2
+# alias rebuild-vm := rebuild-qcow2
+# alias run-vm := run-vm-qcow2
 
 [private]
 default:
@@ -164,33 +164,33 @@ rechunk $target_image=image_name $tag=default_tag:
     podman tag "${CHUNKED_IMAGE}" "${target_image}:${tag}"
 
 # Split the image for smaller updates (Classical)!
-ostree-rechunk $target_image=image_name $tag=default_tag:
-    #!/usr/bin/env bash
+# ostree-rechunk $target_image=image_name $tag=default_tag:
+#     #!/usr/bin/env bash
 
-    set -xeuo pipefail
+#     set -xeuo pipefail
 
-    # TODO: This is the only blocker for rootless CI
-    # https://github.com/coreos/rpm-ostree/issues/5346
-    if [[ ! "${UID}" -eq "0" ]]; then
-      echo "This needs to run as root."
-      exit 1
-    fi
+#     # TODO: This is the only blocker for rootless CI
+#     # https://github.com/coreos/rpm-ostree/issues/5346
+#     if [[ ! "${UID}" -eq "0" ]]; then
+#       echo "This needs to run as root."
+#       exit 1
+#     fi
 
-    # You can use your own base image here to avoid pulling fedora-bootc
-    RPM_OSTREE_CHUNKER_IMAGE="quay.io/fedora/fedora-bootc:latest"
+#     # You can use your own base image here to avoid pulling fedora-bootc
+#     RPM_OSTREE_CHUNKER_IMAGE="quay.io/fedora/fedora-bootc:latest"
 
-    podman run --rm \
-      --pull=newer \
-      --privileged \
-      -v "/var/lib/containers:/var/lib/containers" \
-      --entrypoint /usr/bin/rpm-ostree \
-      "${RPM_OSTREE_CHUNKER_IMAGE}" \
-      compose build-chunked-oci \
-      --max-layers 127 \
-      --format-version=2 \
-      --bootc \
-      --from "localhost/${target_image}:${tag}" \
-      --output containers-storage:"localhost/${target_image}:${tag}"
+#     podman run --rm \
+#       --pull=newer \
+#       --privileged \
+#       -v "/var/lib/containers:/var/lib/containers" \
+#       --entrypoint /usr/bin/rpm-ostree \
+#       "${RPM_OSTREE_CHUNKER_IMAGE}" \
+#       compose build-chunked-oci \
+#       --max-layers 127 \
+#       --format-version=2 \
+#       --bootc \
+#       --from "localhost/${target_image}:${tag}" \
+#       --output containers-storage:"localhost/${target_image}:${tag}"
 
 # Generate Default Tag
 [group('Utility')]
@@ -345,29 +345,29 @@ _build-bib $target_image $tag $type $config: (_rootful_load_image target_image t
 # Example: just _rebuild-bib localhost/fedora latest qcow2 disk_config/disk.toml
 _rebuild-bib $target_image $tag $type $config: (build target_image tag) && (_build-bib target_image tag type config)
 
-# Build a QCOW2 virtual machine image
-[group('Build Virtal Machine Image')]
-build-qcow2 $target_image=("localhost/" + image_name) $tag=default_tag: && (_build-bib target_image tag "qcow2" "disk_config/disk.toml")
+# # Build a QCOW2 virtual machine image
+# [group('Build Virtal Machine Image')]
+# build-qcow2 $target_image=("localhost/" + image_name) $tag=default_tag: && (_build-bib target_image tag "qcow2" "disk_config/disk.toml")
 
-# Build a RAW virtual machine image
-[group('Build Virtal Machine Image')]
-build-raw $target_image=("localhost/" + image_name) $tag=default_tag: && (_build-bib target_image tag "raw" "disk_config/disk.toml")
+# # Build a RAW virtual machine image
+# [group('Build Virtal Machine Image')]
+# build-raw $target_image=("localhost/" + image_name) $tag=default_tag: && (_build-bib target_image tag "raw" "disk_config/disk.toml")
 
-# Build an ISO virtual machine image
-[group('Build Virtal Machine Image')]
-build-iso $target_image=("localhost/" + image_name) $tag=default_tag: && (_build-bib target_image tag "iso" "disk_config/iso.toml")
+# # Build an ISO virtual machine image
+# [group('Build Virtal Machine Image')]
+# build-iso $target_image=("localhost/" + image_name) $tag=default_tag: && (_build-bib target_image tag "iso" "disk_config/iso.toml")
 
-# Rebuild a QCOW2 virtual machine image
-[group('Build Virtal Machine Image')]
-rebuild-qcow2 $target_image=("localhost/" + image_name) $tag=default_tag: && (_rebuild-bib target_image tag "qcow2" "disk_config/disk.toml")
+# # Rebuild a QCOW2 virtual machine image
+# [group('Build Virtal Machine Image')]
+# rebuild-qcow2 $target_image=("localhost/" + image_name) $tag=default_tag: && (_rebuild-bib target_image tag "qcow2" "disk_config/disk.toml")
 
-# Rebuild a RAW virtual machine image
-[group('Build Virtal Machine Image')]
-rebuild-raw $target_image=("localhost/" + image_name) $tag=default_tag: && (_rebuild-bib target_image tag "raw" "disk_config/disk.toml")
+# # Rebuild a RAW virtual machine image
+# [group('Build Virtal Machine Image')]
+# rebuild-raw $target_image=("localhost/" + image_name) $tag=default_tag: && (_rebuild-bib target_image tag "raw" "disk_config/disk.toml")
 
-# Rebuild an ISO virtual machine image
-[group('Build Virtal Machine Image')]
-rebuild-iso $target_image=("localhost/" + image_name) $tag=default_tag: && (_rebuild-bib target_image tag "iso" "disk_config/iso.toml")
+# # Rebuild an ISO virtual machine image
+# [group('Build Virtal Machine Image')]
+# rebuild-iso $target_image=("localhost/" + image_name) $tag=default_tag: && (_rebuild-bib target_image tag "iso" "disk_config/iso.toml")
 
 # Run a virtual machine with the specified image type and configuration
 _run-vm $target_image $tag $type $config:
@@ -412,34 +412,34 @@ _run-vm $target_image $tag $type $config:
     podman run "${run_args[@]}"
 
 # Run a virtual machine from a QCOW2 image
-[group('Run Virtal Machine')]
-run-vm-qcow2 $target_image=("localhost/" + image_name) $tag=default_tag: && (_run-vm target_image tag "qcow2" "disk_config/disk.toml")
+# [group('Run Virtal Machine')]
+# run-vm-qcow2 $target_image=("localhost/" + image_name) $tag=default_tag: && (_run-vm target_image tag "qcow2" "disk_config/disk.toml")
 
 # Run a virtual machine from a RAW image
-[group('Run Virtal Machine')]
-run-vm-raw $target_image=("localhost/" + image_name) $tag=default_tag: && (_run-vm target_image tag "raw" "disk_config/disk.toml")
+# [group('Run Virtal Machine')]
+# run-vm-raw $target_image=("localhost/" + image_name) $tag=default_tag: && (_run-vm target_image tag "raw" "disk_config/disk.toml")
 
 # Run a virtual machine from an ISO
-[group('Run Virtal Machine')]
-run-vm-iso $target_image=("localhost/" + image_name) $tag=default_tag: && (_run-vm target_image tag "iso" "disk_config/iso.toml")
+# [group('Run Virtal Machine')]
+# run-vm-iso $target_image=("localhost/" + image_name) $tag=default_tag: && (_run-vm target_image tag "iso" "disk_config/iso.toml")
 
 # Run a virtual machine using systemd-vmspawn
-[group('Run Virtal Machine')]
-spawn-vm rebuild="0" type="qcow2" ram="6G":
-    #!/usr/bin/env bash
+# [group('Run Virtal Machine')]
+# spawn-vm rebuild="0" type="qcow2" ram="6G":
+#     #!/usr/bin/env bash
 
-    set -euo pipefail
+#     set -euo pipefail
 
-    [ "{{ rebuild }}" -eq 1 ] && echo "Rebuilding the ISO" && just build-vm {{ rebuild }} {{ type }}
+#     [ "{{ rebuild }}" -eq 1 ] && echo "Rebuilding the ISO" && just build-vm {{ rebuild }} {{ type }}
 
-    systemd-vmspawn \
-      -M "bootc-image" \
-      --console=gui \
-      --cpus=2 \
-      --ram=$(echo {{ ram }}| numfmt --from=iec) \
-      --network-user-mode \
-      --vsock=false --pass-ssh-key=false \
-      -i ./output/**/*.{{ type }}
+#     systemd-vmspawn \
+#       -M "bootc-image" \
+#       --console=gui \
+#       --cpus=2 \
+#       --ram=$(echo {{ ram }}| numfmt --from=iec) \
+#       --network-user-mode \
+#       --vsock=false --pass-ssh-key=false \
+#       -i ./output/**/*.{{ type }}
 
 # Runs shell check on all Bash scripts
 lint:

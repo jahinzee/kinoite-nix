@@ -5,19 +5,26 @@ on:
     branches:
       - main
   schedule:
-    - cron: '05 10 * * *'  # 10:05am UTC everyday
+    - cron: "05 10 * * *" # 10:05am UTC everyday
   push:
     branches:
       - main
     paths-ignore:
-      - '**/README.md'
+      - "**/README.md"
   workflow_dispatch:
 
 env:
-  IMAGE_REGISTRY: "ghcr.io/${{ github.repository_owner }}"  # do not edit
+  IMAGE_REGISTRY: "ghcr.io/${{ github.repository_owner }}" # do not edit
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}-${{ inputs.brand_name}}-${{ inputs.stream_name }}
+  # Doing this ugly JSON roundtrip hack to get VSCode's GitHub Workflows extension to shut up; it's
+  # a prewritten file from the template so should be fine.
+  #
+  # No, the warning cannot be suppressed -- I've tried.
+  #
+  # See: https://errorism.dev/issues/github-vscode-github-actions-context-access-might-be-invalid-warning-thrown-for-repository-variables-and-secrets
+  #      (comment by wipe2238)
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}-${{ fromJSON(toJSON(inputs)).brand_name}}-${{ fromJSON(toJSON(inputs)).stream_name }}
   cancel-in-progress: true
 
 jobs:
@@ -147,7 +154,7 @@ jobs:
         if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
         with:
           # be careful when upgrading major versions
-          cosign-release: 'v3.1.2'
+          cosign-release: "v3.1.2"
 
       - name: Sign container image
         id: sign-image
@@ -161,4 +168,3 @@ jobs:
           # https://github.com/coreos/rpm-ostree/issues/5509
           # use old bundle format, so we can use newer cosign 3.X.X instead of 2.X.X
           cosign sign -y --new-bundle-format=false --use-signing-config=false --key env://COSIGN_PRIVATE_KEY ${IMAGE_REGISTRY}/${IMAGE_NAME}@${DIGEST}
-
