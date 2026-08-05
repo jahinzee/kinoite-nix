@@ -21,12 +21,20 @@ This image makes these changes to the upstream `ublue-os/kinoite-main`:
 
 ### Switch to this image
 
-Assuming you've installed a base install of Fedora Kinoite or Aurora, switch to the new image
-with:
+Assuming you've installed a base install of Fedora Kinoite or Aurora, you'll need to first
+switch to the unsigned version of the image, and reboot.
 
 ```bash
 sudo bootc switch ghcr.io/jahinzee/kinoite-nix
 ```
+
+After the reboot, rebase once again to the signed version of the image.
+
+```sh
+rpm-ostree rebase ostree-image-signed:docker://ghcr.io/jahinzee/kinoite-nix
+```
+
+Reboot again, et voilà!
 
 ---
 
@@ -35,6 +43,7 @@ sudo bootc switch ghcr.io/jahinzee/kinoite-nix
 - Most of the additional patches to get Nix working on atomic systems were based off [this post] on
   Fedora Discussion by Alice Cartaret. You may find this post useful for further steps on
   setting up Home Manager or graphics acceleration.
+
 - See also: [the original template README](README_OLD.md)
 
 [this post]: https://discussion.fedoraproject.org/t/my-experience-integrating-nix-into-fedora-bootc/190809
