@@ -1,5 +1,7 @@
 # kinoite-nix
 
+[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/kinoite-nix)](https://artifacthub.io/packages/search?repo=kinoite-nix)
+
 A light modification of Fedora Kinoite with multi-user Nix.
 
 This image makes these changes to the upstream `ublue-os/kinoite-main`:
