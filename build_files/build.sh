@@ -29,13 +29,14 @@ Options=bind
 WantedBy=local-fs.target
 EOF
 
-# Add default /nix bindings for new Distrobox containers.
-#
-mkdir -p /usr/share/distrobox
-cat <<EOF >/usr/share/distrobox/distrobox.conf
-container_manager="podman"
-container_additional_volumes="/nix:/nix:ro"
-EOF
+# 2026-08-23: Disabled due to possible conflicts with dynamic linking.
+# # Add default /nix bindings for new Distrobox containers.
+# #
+# mkdir -p /usr/share/distrobox
+# cat <<EOF >/usr/share/distrobox/distrobox.conf
+# container_manager="podman"
+# container_additional_volumes="/nix:/nix:ro"
+# EOF
 
 systemctl enable nix.mount
 systemctl enable nix-daemon.service

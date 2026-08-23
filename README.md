@@ -6,7 +6,7 @@ This image makes these changes to the upstream `ublue-os/kinoite-main`:
 
 - Replaced Firefox with [Helium] as the default browser.
 - Added the [Nix package manager], in multi-user configuration.
-- Added [Distrobox], configured with default (read-only) `/nix` bindings.
+- Added [Distrobox].
 
 [Helium]: https://helium.computer/
 [Nix package manager]: https://nix.dev/
@@ -60,12 +60,16 @@ what you personally want, then you're free to do that.
 
 ### Can I use Distrobox with my Nix packages?
 
-You can! This image contains a default configuration that mounts `/nix` as a read-only volume on
-any newly-created Distrobox. To be safe, you can still add a `--volume /nix:/nix:ro` flag when using
-`distrobox-create` if you want.
+You can! When creating a distrobox with `distrobox create`, add the `--volume /nix:/nix:ro` flag
+for read-only access to your Nix store and apps.
 
 Note that `/nix` will be mounted as **read-only** inside a Distrobox. To perform tasks that modify
 `/nix` – i.e. basically anything – you need to run the Nix command-line apps them from the host.
+
+#### Update (2026-08-23):
+
+This function is no longer enabled by default, as it might result in issues with dynamic linking
+between libraries installed with the guest OS package manager and libraries installed by Nix.
 
 ## Acknowledgements and Additional Notes
 
